@@ -76,9 +76,9 @@ public class Main {
 		            }
 		        }
 				
-				Article article = new Article(lastArticleId, title, body);
+//				Article article = new Article(lastArticleId, title, body);
 				
-				articles.add(article);
+//				articles.add(article);
 				
 				System.out.printf("%d번 게시물이 작성되었습니다\n", lastArticleId);
 				
