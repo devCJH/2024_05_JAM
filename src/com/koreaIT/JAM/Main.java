@@ -3,6 +3,7 @@ package com.koreaIT.JAM;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.Scanner;
 import com.koreaIT.JAM.dto.Article;
 
 public class Main {
-	
 	private static final String URL = "jdbc:mysql://localhost:3306/jdbc_article_manager?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
     private static final String USER = "root";
     private static final String PASSWORD = "";
@@ -19,8 +19,6 @@ public class Main {
 	public static void main(String[] args) {
 		
 		Scanner sc = new Scanner(System.in);
-		
-		List<Article> articles = new ArrayList<>();
 		
 		int lastArticleId = 1;
 		
@@ -76,15 +74,63 @@ public class Main {
 		            }
 		        }
 				
-//				Article article = new Article(lastArticleId, title, body);
-				
-//				articles.add(article);
-				
 				System.out.printf("%d번 게시물이 작성되었습니다\n", lastArticleId);
 				
 				lastArticleId++;
 			} else if (cmd.equals("article list")) {
 				System.out.println("== 게시물 목록 ==");
+				
+				Connection connection = null;
+		    	PreparedStatement pstmt = null;
+		    	ResultSet rs = null;
+		        
+		    	List<Article> articles = new ArrayList<>();
+		    	
+		        try {
+		            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+		            String sql = "SELECT * FROM article";
+		            sql += " ORDER BY id DESC;";
+		            
+		            pstmt = connection.prepareStatement(sql);
+		            rs = pstmt.executeQuery();
+		            
+		            while (rs.next()) {
+		            	int id = rs.getInt("id");
+		            	String regDate = rs.getString("regDate");
+		            	String updateDate = rs.getString("updateDate");
+		            	String title = rs.getString("title");
+		            	String body = rs.getString("body");
+		            	
+		            	Article article = new Article(id, regDate, updateDate, title, body);
+		            	articles.add(article);
+		            }
+		            
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		        } finally {
+		        	if (rs != null) {
+		        		try {
+		        			rs.close();
+		        		} catch (SQLException e) {
+		        			e.printStackTrace();
+		        		}
+		        	}
+		            if (pstmt != null) {
+		                try {
+		                	pstmt.close();
+		                } catch (SQLException e) {
+		                    e.printStackTrace();
+		                }
+		            }
+		            if (connection != null) {
+		            	try {
+		            		connection.close();
+		            	} catch (SQLException e) {
+		            		e.printStackTrace();
+		            	}
+		            }
+		        }
 				
 				if (articles.size() == 0) {
 					System.out.println("게시물이 존재하지 않습니다");
@@ -92,9 +138,7 @@ public class Main {
 				}
 				
 				System.out.println("번호	|	제목");
-				for (int i = articles.size() - 1; i >= 0; i--) {
-					Article article = articles.get(i);
-					
+				for (Article article : articles) {
 					System.out.printf("%d	|	%s\n", article.id, article.title);
 				}
 				
