@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.koreaIT.JAM.dto.Article;
+import com.koreaIT.JAM.util.DBUtil;
+import com.koreaIT.JAM.util.SecSql;
 
 public class App {
 	
@@ -23,10 +25,7 @@ public class App {
 		
 		Scanner sc = new Scanner(System.in);
 		
-		int lastArticleId = 1;
-		
 		Connection connection = null;
-		PreparedStatement pstmt = null;
 		
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -48,23 +47,17 @@ public class App {
 					System.out.printf("내용 : ");
 					String body = sc.nextLine();
 					
-			        try {
-			            String sql = "INSERT INTO article";
-			            sql += " SET regDate = NOW()";
-			            sql += ", updateDate = NOW()";
-			            sql += ", title = '" + title + "'";
-			            sql += ", `body` = '" + body + "';";
-			            
-			            pstmt = connection.prepareStatement(sql);
-			            pstmt.executeUpdate();
+		        	SecSql sql = new SecSql();
+		        	sql.append("INSERT INTO article");
+		        	sql.append("SET regDate = NOW()");
+		        	sql.append(", updateDate = NOW()");
+		        	sql.append(", title = ?", title);
+		        	sql.append(", `body` = ?", body);
+		        	
+		        	int id = DBUtil.insert(connection, sql);
 
-			        } catch (SQLException e) {
-			            e.printStackTrace();
-			        }
+					System.out.printf("%d번 게시물이 작성되었습니다\n", id);
 					
-					System.out.printf("%d번 게시물이 작성되었습니다\n", lastArticleId);
-					
-					lastArticleId++;
 				} else if (cmd.equals("article list")) {
 					System.out.println("== 게시물 목록 ==");
 					
