@@ -3,16 +3,15 @@ package com.koreaIT.JAM.controller;
 import java.sql.Connection;
 import java.util.Scanner;
 
-import com.koreaIT.JAM.util.DBUtil;
-import com.koreaIT.JAM.util.SecSql;
+import com.koreaIT.JAM.service.MemberService;
 
 public class MemberController {
 
-	private Connection connection;
+	private MemberService memberService;
 	private Scanner sc;
 	
 	public MemberController(Connection connection, Scanner sc) {
-		this.connection = connection;
+		this.memberService = new MemberService(connection);
 		this.sc = sc;
 	}
 
@@ -33,12 +32,7 @@ public class MemberController {
 				continue;
 			}
 			
-			SecSql sql = new SecSql();
-			sql.append("SELECT COUNT(id) > 0");
-			sql.append("FROM `member`");
-			sql.append("WHERE loginId = ?", loginId);
-			
-			boolean isLoginIdDup = DBUtil.selectRowBooleanValue(connection, sql);
+			boolean isLoginIdDup = memberService.isLoginIdDup(loginId);
 			
 			if (isLoginIdDup) {
 				System.out.printf("[ %s ] 은(는) 이미 사용중인 아이디입니다\n", loginId);
@@ -79,18 +73,9 @@ public class MemberController {
 			break;
 		}
 		
-    	SecSql sql = new SecSql();
-    	sql.append("INSERT INTO `member`");
-    	sql.append("SET regDate = NOW()");
-    	sql.append(", updateDate = NOW()");
-    	sql.append(", loginId = ?", loginId);
-    	sql.append(", loginPw = ?", loginPw);
-    	sql.append(", `name` = ?", name);
-    	
-    	DBUtil.insert(connection, sql);
+    	memberService.doJoin(loginId, loginPw, name);
 
 		System.out.printf("[ %s ] 님의 가입을 환영합니다~\n", loginId);
-		
 	}
 
 }
