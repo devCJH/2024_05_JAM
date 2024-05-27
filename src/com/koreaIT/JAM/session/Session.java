@@ -18,4 +18,8 @@ public class Session {
 	public static boolean isLogined() {
 		return loginedMemberId != -1;
 	}
+	
+	public static int getLoginedMemberId() {
+		return loginedMemberId;
+	}
 }
