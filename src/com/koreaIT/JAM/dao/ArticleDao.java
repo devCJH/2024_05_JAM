@@ -91,4 +91,14 @@ public class ArticleDao {
 		
 		return DBUtil.selectRow(connection, sql);
 	}
+
+	public int increaseVCnt(int id) {
+		
+		SecSql sql = new SecSql();
+		sql.append("UPDATE article");
+		sql.append("SET vCnt = vCnt + 1");
+		sql.append("WHERE id = ?", id);
+		
+		return DBUtil.update(connection, sql);
+	}
 }

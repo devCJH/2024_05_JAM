@@ -75,4 +75,8 @@ public class ArticleService {
 		
 		return new Article(articleMap);
 	}
+
+	public int increaseVCnt(int id) {
+		return articleDao.increaseVCnt(id);
+	}
 }
